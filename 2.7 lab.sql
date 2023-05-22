@@ -28,16 +28,20 @@ using (staff_id)
 where date(payment.payment_date) like '2005-08-%'
 group by staff.first_name; 
  
-#Which actor has appeared in the most films?  I had problems joining with the actor table for the first_name. Works
-select actor_id, count(film_id)
+#Which actor has appeared in the most films? works
+select actor_id,CONCAT(actor.first_name, '  ', actor.last_name), count(film_id)
 from film_actor
+JOIN actor
+USING (actor_id)
 group by actor_id
 order by count(film_id) desc
 limit 1;
 
 #Most active customer (the customer that has rented the most number of films). Same problem. works
-select customer_id, count(rental_id)
+select customer_id,CONCAT(customer.first_name, '  ', customer.last_name), count(rental_id)
 from rental
+join customer
+using (customer_id)
 group by customer_id
 order by count(rental_id) desc
 limit 1;
@@ -50,14 +54,22 @@ join sakila.address a
 ON a.address_id = f.address_id;
 
 #List each film and the number of actors who are listed for that film.
-SELECT film_id
+SELECT f.title, count(fa.actor_id)
+from sakila.film f
+join sakila.film_actor fa
+on f.film_id=fa.film_id
+group by f.title
+order by count(fa.actor_id) DESC;
+
 
 #Using the tables payment and customer and the JOIN command, list the total paid by each customer. List the customers alphabetically by last name.
-SELECT c.customer_id, c.last_name, sum(p.amount)
-from sakila.customer c
-join sakila.payment p
-on c.customer_id=p.customer_id
-order by c.last_name desc;
+SELECT c.last_name, sum(p.amount)
+FROM sakila.payment p
+JOIN sakila.customer c
+ON p.customer_id = c.customer_id
+group by c.last_name
+order by c.last_name ASC;
+
 
 #List number of films per category. works
 SELECT name as category_name, count(film_id) 
